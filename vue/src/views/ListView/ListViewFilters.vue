@@ -6,23 +6,23 @@
                 class="filters-search"
                 variant="plain"
                 :placeholder="languages.label('LBL_MINT4_GS_SEARCH_INPUT')"
-                prepend-inner-icon="mdi-magnify"
-                @keyup.enter="handleSearchPhraseEnterKey"
                 @input="updateOptionsDebounce"
+                @keyup.enter="searchByPhrase"
                 hide-details
-            />
+            >
+                <template #prepend-inner>
+                    <v-fab-transition>
+                        <v-icon v-if="store.searchPhrase" icon="mdi-close" @click="clearInput" />
+                        <v-icon v-else icon="mdi-magnify" />
+                    </v-fab-transition>
+                </template>
+            </v-text-field>
         </v-col>
         <v-switch v-model="store.myObjects" class="flex-grow-0" @change="store.getData" color="secondary" hide-details>
             <template #label>
                 <span v-text="languages.label('LBL_ESLIST_MY_OBJECTS')"></span>
             </template>
         </v-switch>
-        <MintButton
-            variant="primary"
-            icon="mdi-plus"
-            :text="languages.label('LBL_ESLIST_ADD_FILTER')"
-            @click="addFilterRow"
-        />
         <MintButton
             icon="mdi-content-save-outline"
             :disabled="!filterRows.length"
@@ -71,7 +71,6 @@
             :key="row"
             :index="index"
             :row="row"
-            @delete-filter-row="deleteFilterRow"
         />
     </div>
 </template>
@@ -89,13 +88,11 @@ import ListViewSaveFilterPopup from './ListViewSaveFilterPopup.vue'
 import cloneDeep from 'lodash.clonedeep'
 
 const store = useListViewStore()
-const { activeFilter } = storeToRefs(useListViewStore())
+const { activeFilter, filterRows } = storeToRefs(useListViewStore())
 const languages = useLanguagesStore()
 const popups = usePopupsStore()
 
 const searchPhraseDebounceTimer = ref<number | null>(null)
-
-const filterRows = ref<FilterRow[]>([])
 
 function updateOptionsDebounce() {
     if (searchPhraseDebounceTimer.value) {
@@ -104,34 +101,24 @@ function updateOptionsDebounce() {
     searchPhraseDebounceTimer.value = setTimeout(store.getData, 1000)
 }
 
-function handleSearchPhraseEnterKey() {
+function searchByPhrase() {
     if (searchPhraseDebounceTimer.value) {
         clearTimeout(searchPhraseDebounceTimer.value)
     }
     store.getData()
 }
 
-function addFilterRow() {
-    filterRows.value.push({
-        field: null,
-        operator: null,
-        inputs: [],
-    })
-}
-
 function showSaveFilterPopup() {
+    let myObjects = store.myObjects
     popups.showPopup({
         title: languages.label('LBL_ESLIST_SAVE_FILTER'),
         component: ListViewSaveFilterPopup,
         icon: 'mdi-content-save-outline',
         data: {
             filterRows,
+            myObjects,
         },
     })
-}
-
-function deleteFilterRow(index: number) {
-    filterRows.value = filterRows.value.filter((filterRow, filterIndex) => index !== filterIndex)
 }
 
 function replacePlaceholders(placeholders, inputs) {
@@ -162,6 +149,11 @@ function isInputValid(input) {
         (input.type !== 'date' || input.value.length === 10) && // todo: date format validation
         (input.type !== 'multiselect' || input.value.length)
     )
+}
+
+function clearInput() {
+    store.searchPhrase = ''
+    searchByPhrase()
 }
 
 function isFilterRowValid(row: FilterRow) {
@@ -202,6 +194,8 @@ function setFilters(filterRows: FilterRow[]) {
 
 function deleteSavedFilter(filter: string) {
     store.preferences.saved_filters = store.preferences?.saved_filters.filter((f) => f.name !== filter)
+    filterRows.value = []
+    activeFilter.value = null
     store.savePreferences()
 }
 
@@ -217,6 +211,7 @@ watch(activeFilter, () => {
     filterRows.value = cloneDeep(
         store.preferences?.saved_filters?.find((f) => f.name === activeFilter.value)?.filters ?? [],
     )
+    store.myObjects = store.preferences?.saved_filters?.find((f) => f.name === activeFilter.value)?.myObjects ?? false;
 })
 </script>
 
@@ -230,7 +225,6 @@ watch(activeFilter, () => {
 .filters-rows {
     display: flex;
     flex-direction: column;
-    gap: 16px;
 }
 
 .filters-search {

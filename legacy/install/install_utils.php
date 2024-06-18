@@ -724,7 +724,7 @@ function handleSugarConfig($lock = false) {
    global $sugar_config;
    global $setup_site_log_level;
 
-   echo "<b>{$mod_strings['LBL_PERFORM_CONFIG_PHP']} (config.php)</b><br>";
+   
    ///////////////////////////////////////////////////////////////////////////////
    ////    $sugar_config SETTINGS
    if ( is_file('config.php') ) {
@@ -1309,6 +1309,7 @@ function insert_default_settings() {
     'Workplaces',
     'Rooms',
     'SecurityGroups',
+    'Employees',
     );
 
    $hidden_subpanels = array (

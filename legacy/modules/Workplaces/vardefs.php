@@ -71,13 +71,14 @@ $dictionary['Workplaces'] = array(
             'options' => 'workplace_mode_list',
             'studio' => 'visible',
             'dependency' => false,
-            'vt_validation' => "AEM(callCustomApi('Workplaces','canChangeMode',\$id,\$mode),'LBL_ERR_CANT_CHANGE_MODE')",
+            'vt_validation' => "AEM(callCustomApi('Workplaces','canChangeMode',{id: \$id, mode: \$mode}),'LBL_ERR_CANT_CHANGE_MODE')",
         ),
         'availability' => array(
             'required' => true,
             'name' => 'availability',
             'vname' => 'LBL_STATUS',
-            'type' => 'enum',
+            'type' => 'ColoredEnum',
+            'dbType' => 'varchar',
             'massupdate' => '0',
             'default' => '',
             'no_default' => false,
@@ -94,6 +95,7 @@ $dictionary['Workplaces'] = array(
             'len' => 100,
             'size' => '20',
             'options' => 'workplace_room_status',
+            'options_colors' => 'workplace_room_status_colored',
             'studio' => 'visible',
         ),
         "rooms_workplaces" => array(
@@ -117,7 +119,7 @@ $dictionary['Workplaces'] = array(
             'module' => 'Rooms',
             'table' => 'rooms',
             'rname' => 'name',
-            'vt_validation' => "AEM(callCustomApi('Workplaces','canSelectRoom',\$room_id),'LBL_ERR_CANT_SELECT_ROOM')",
+            'vt_validation' => "AEM(callCustomApi('Workplaces','canSelectRoom', {room_id: \$room_id}),'LBL_ERR_CANT_SELECT_ROOM')",
          ),
          "room_id" => array(
             'name' => 'room_id',

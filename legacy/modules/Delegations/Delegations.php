@@ -109,7 +109,7 @@ class Delegations extends Delegations_sugar
     protected function getExchangeRate()
     {
         $exchange_rate = $this->exchange_rate;
-        if ($this->exchange_rate == 0) {
+        if (!is_int($exchange_rate) || $exchange_rate === 0) {
             $exchange_rate = 1;
         }
         return $exchange_rate;
@@ -120,9 +120,6 @@ class Delegations extends Delegations_sugar
         $exchange_rate                         = $this->getExchangeRate();
         $this->regiments_usdollar              = $this->regiments * $exchange_rate;
         $this->accommodation_lump_sum_usdollar = $this->accommodation_lump_sum * $exchange_rate;
-//        $this->transport_cost_usdollar         = $this->transport_cost * $exchange_rate;
-//      $this->total_accommodation_usdollar = $this->total_accommodation * $exchange_rate;
-//        $this->other_usdollar                  = $this->other * $exchange_rate;
         $this->total_expenses_usdollar         = $this->total_expenses * $exchange_rate;
         $this->obtained_sum_usdollar           = $this->obtained_sum * $$exchange_rate;
         $this->payoff_sum_usdollar             = $this->payoff_sum * $exchange_rate;
@@ -227,8 +224,8 @@ class Delegations extends Delegations_sugar
 
     public function countRegiments()
     {
-        $date1  = new DateTime($this->start_date);
-        $date2  = new DateTime($this->end_date);
+        $date1  = getDateTimeObject($this->start_date, true);
+        $date2  = getDateTimeObject($this->end_date, true);
         $period = $date1->diff($date2);
 
         $regiment = 0;
@@ -317,8 +314,8 @@ class Delegations extends Delegations_sugar
 
     public function countNumberOfNights()
     {
-        $date_start = new DateTime(substr($this->start_date, 0, 10));
-        $date_end   = new DateTime(substr($this->end_date, 0, 10));
+        $date_start = getDateTimeObject($this->start_date, true);
+        $date_end   = getDateTimeObject($this->end_date, true);
         $period     = $date_end->diff($date_start);
         return $period->d;
     }
@@ -368,12 +365,16 @@ class Delegations extends Delegations_sugar
 
     public function countPayoffSum()
     {
+        $this->total_expenses = (int) $this->total_expenses;
+        $this->obtained_sum = (int) $this->obtained_sum;
         $this->payoff_sum = ($this->total_expenses - $this->obtained_sum) > 0 ? ($this->total_expenses - $this->obtained_sum)
                 : 0;
     }
 
     public function countReturnSum()
     {
+        $this->total_expenses = (int) $this->total_expenses;
+        $this->obtained_sum = (int) $this->obtained_sum;
         $this->return_sum = ($this->total_expenses - $this->obtained_sum) < 0 ? ($this->obtained_sum - $this->total_expenses)
                 : 0;
     }

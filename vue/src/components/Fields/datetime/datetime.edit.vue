@@ -12,7 +12,14 @@
                 </v-menu>
             </template>
         </v-text-field>
-        <v-text-field :disabled="!dateValue" variant="outlined" density="compact" type="time" hide-details v-model="timeValue" />
+        <v-text-field
+            :disabled="!dateValue"
+            variant="outlined"
+            density="compact"
+            type="time"
+            hide-details
+            v-model="timeValue"
+        />
     </div>
 </template>
 
@@ -20,7 +27,6 @@
 import { ref, computed, watch } from 'vue'
 import { DateTime } from 'luxon'
 import { FieldVardef } from '@/store/modules'
-import { VDatePicker } from 'vuetify/labs/VDatePicker'
 
 interface Props {
     defs: FieldVardef
